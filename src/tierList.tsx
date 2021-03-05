@@ -49,7 +49,7 @@ function CourseIconContainer({courseKey, currentTier, setItems}: courseIconConta
   </div>
 }
 
-function TierRow({children, name, color}: {children: React.ReactNode, name: string, color: Color}) {
+function TierRow({children, name, color}: {children: React.ReactNode, name: tierName, color: Color}) {
   const [{canDrop, isOver}, drop] = useDrop({
     accept: 'courseIcon',
     drop: () => ({name}),
@@ -66,7 +66,6 @@ function TierRow({children, name, color}: {children: React.ReactNode, name: stri
     width: '100px',
     borderRight: 'solid 1px black',
     backgroundColor: color,
-    fontSize: 40,
     padding: '10px'
     }
   const imageHolderStyle = {
@@ -74,12 +73,26 @@ function TierRow({children, name, color}: {children: React.ReactNode, name: stri
     minHeight: '90px',
   }
   return <div style={rowStyle}>
-    <div style={labelHolderStyle}>{name}</div>
+    <div style={labelHolderStyle}>
+      <label style={{fontSize: 40}}>{name}</label><br/>
+      <label style={{fontSize: 20}}>{`${tierWeights[name]*100}%`}</label>
+    </div>
     <div ref={drop} style={imageHolderStyle}>
       {children}
     </div>
   </div>
 }
+
+const tierWeights = {
+  'S': 2,
+  'A': 1.5,
+  'B': 1,
+  'C': .5,
+  'D': .25,
+  'F': 0
+}
+
+type tierName = 'S' | 'A' | 'B' | 'C' | 'D' | 'F'
 
 interface courseState {
   id: number,
@@ -105,12 +118,12 @@ function TierList({updateTiers}: {updateTiers:(tierList: courseState[])=>void}) 
     });
   }
 
-  const rowNames = ['S', 'A', 'B', 'C', 'D', 'F']
+  const tierNames: tierName[] = ['S', 'A', 'B', 'C', 'D', 'F']
   const rowColors: Color[] = ['red', 'orange', 'yellow', 'green', 'blue', 'brown']
 
   return <div>
       <DndProvider backend={HTML5Backend}>
-        {rowNames.map((name, index)=>{
+        {tierNames.map((name, index)=>{
           return <TierRow name={name} color={rowColors[index]}>
               {returnCoursesForTier(name)}
             </TierRow>
@@ -120,4 +133,4 @@ function TierList({updateTiers}: {updateTiers:(tierList: courseState[])=>void}) 
 }
 
 export type { courseState }
-export { TierList };
+export { TierList, tierWeights };

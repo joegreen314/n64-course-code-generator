@@ -1,17 +1,10 @@
 import React, { useState } from 'react';
 import './App.css';
-import { TierList, courseState } from './tierList'
+import { TierList, courseState, tierWeights } from './tierList'
 import {courses, CourseKey, getRandomPrix, CoursePreferences} from './codes'
 
 let preferences:CoursePreferences = {}
-const tierWeights = {
-  'S': 8,
-  'A': 6,
-  'B': 4,
-  'C': 2,
-  'D': 1,
-  'F': 0
-}
+
 
 function updateTiers(tiers: courseState[]):void{
   for (const stateObject of tiers){
@@ -23,9 +16,10 @@ function updateTiers(tiers: courseState[]):void{
 function App() {
   const tierList = React.createRef();
   return <div>
+      <label>Drag and drop the course icons to change course liklihood</label>
       <TierList updateTiers={updateTiers}/>
       <label htmlFor='courseCountInput'>Prix Length:</label>
-      <input type='text' id='courseCountInput'></input>
+      <input type='text' id='courseCountInput' value='8'></input>
       <br/>
       <button onClick={getNewCode}>Show me some races!</button>
       <br/>
