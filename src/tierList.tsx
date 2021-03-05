@@ -60,7 +60,8 @@ function TierRow({children, name, color}: {children: React.ReactNode, name: tier
   })
   const rowStyle = {
     border: 'solid 1px black',
-    display: 'inline-flex'
+    display: 'inline-flex',
+    backgroundColor: '#505050'
   }
   const labelHolderStyle = {
     width: '100px',
@@ -69,7 +70,7 @@ function TierRow({children, name, color}: {children: React.ReactNode, name: tier
     padding: '10px'
     }
   const imageHolderStyle = {
-    width: '800px',
+    width: '870px',
     minHeight: '90px',
   }
   return <div style={rowStyle}>

@@ -4,9 +4,9 @@ save preferences in browser
 Randomize order
 Optionally show races / ruin the surprise
 Display weights for the tiers
-Add funny pictures based on time
 Add styling
 Add "already did these races" option to cut those liklihoods by 50%
 Display expected odds for each race
 Add sound
+Export image of tier preferences
 Obfuscate the codes
