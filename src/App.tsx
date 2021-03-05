@@ -16,10 +16,9 @@ function updateTiers(tiers: courseState[]):void{
 function App() {
   const tierList = React.createRef();
   return <div>
-      <label>Drag and drop the course icons to change course liklihood</label>
       <TierList updateTiers={updateTiers}/>
       <label htmlFor='courseCountInput'>Prix Length:</label>
-      <input type='text' id='courseCountInput' value='8'></input>
+      <input type='text' id='courseCountInput'></input>
       <br/>
       <button onClick={getNewCode}>Show me some races!</button>
       <br/>

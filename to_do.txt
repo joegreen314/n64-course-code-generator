@@ -1,7 +1,6 @@
-Initialize at 8. Disable code generation button for invalid prix length
+Make form the way they should be in react. Initialize at 8. Disable code generation button for invalid prix length
 get other elements to show up to right of tier list
 save preferences in browser
-Get this shit on AWS
 Randomize order
 Optionally show races / ruin the surprise
 Display weights for the tiers
