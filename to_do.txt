@@ -1,0 +1,13 @@
+Disable code generation button for invalid prix length
+get other elements to show up to right of tier list
+save preferences in browser
+Get this shit on AWS
+Randomize order
+Optionally show races / ruin the surprise
+Display weights for the tiers
+Add funny pictures based on time
+Add styling
+Add "already did these races" option to cut those liklihoods by 50%
+Display expected odds for each race
+Add sound
+Obfuscate the codes
