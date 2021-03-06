@@ -247,7 +247,6 @@ function chooseCourses(courseCount: number, preferences: CoursePreferences[], al
         }
         compositeCoursePreferences[new_course]!*=(courseCount/32)
     }
-    selectedCourses.reverse()
     console.log(selectedCourses)
     return selectedCourses;
 }

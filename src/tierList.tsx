@@ -104,7 +104,7 @@ interface courseState {
 function TierList({updateTiers}: {updateTiers:(tierList: courseState[])=>void}) {
   const [items, setItems] = useState((Object.keys(courses) as CourseKey[]).map((courseKey, index)=>({
     course: courseKey,
-    tier: 'B',
+    tier: localStorage[courseKey],
     id: index
   })));
   updateTiers(items)

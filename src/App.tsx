@@ -9,8 +9,9 @@ let preferences:CoursePreferences = {}
 function updateTiers(tiers: courseState[]):void{
   for (const stateObject of tiers){
     preferences[stateObject.course] = tierWeights[stateObject.tier as ('S' | 'A' |'B' | 'C' | 'D' | 'F')]
+    localStorage[stateObject.course] = stateObject.tier
   }
-  console.log(preferences)
+  console.log(preferences, tiers)
 }
 
 function App() {
