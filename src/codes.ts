@@ -252,9 +252,11 @@ function chooseCourses(courseCount: number, preferences: CoursePreferences[], al
     return selectedCourses;
 }
 
-function getRandomPrix(courseCount: number, preferences: CoursePreferences[]) {
+function getRandomPrix(courseCount: number, preferences: CoursePreferences[]):{code: string, courses: CourseKey[]} {
     const courses = chooseCourses(courseCount, preferences)
-    return getPrixCodes(courses).join('\r\n').toUpperCase()
+    return {
+        code: getPrixCodes(courses).join('\r\n').toUpperCase(),
+        courses}
 }
 
 
