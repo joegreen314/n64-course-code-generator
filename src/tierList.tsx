@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import './App.css';
-import {courses, CourseKey} from './codes'
+import {courses, CourseKey, CoursePreferences} from './codes'
 import { DndProvider, DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
-type Color = 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'brown'
+type Color = 'red' | 'orange' | 'yellow' | 'green' | 'teal' | 'brown'
 
 interface courseIconContainerProps {
   courseKey: CourseKey,
@@ -13,12 +13,12 @@ interface courseIconContainerProps {
 }
 
 function CourseIconContainer({courseKey, currentTier, setItems}: courseIconContainerProps) {
-  const changeCourseTier = (currentItem: any, tier: string) => {
-    setItems((prevState: any) => {
-        return prevState.map((e: any) => {
+  const changeCourseTier = (currentItem: {course: CourseKey, type: string}, tier: string) => {
+    setItems((courseTiers: CourseTierPlacement[]) => {
+        return courseTiers.map((courseTier: CourseTierPlacement) => {
             return {
-                ...e,
-                tier: e.course === currentItem.course ? tier : e.tier,
+                ...courseTier,
+                tier: courseTier.course === currentItem.course ? tier : courseTier.tier,
             }
         })
     });
@@ -28,7 +28,7 @@ function CourseIconContainer({courseKey, currentTier, setItems}: courseIconConta
     item: { course: courseKey, type: 'courseIcon' },
     end: (item, monitor) => {
         const dropResult = monitor.getDropResult();
-        if(dropResult) {
+        if(dropResult && item) {
             changeCourseTier(item, dropResult.name)
         }
     },
@@ -76,7 +76,7 @@ function TierRow({children, name, color}: {children: React.ReactNode, name: tier
   return <div style={rowStyle}>
     <div style={labelHolderStyle}>
       <label style={{fontSize: 40}}>{name}</label><br/>
-      <label style={{fontSize: 20}}>{`${tierWeights[name]*100}%`}</label>
+      <label style={{fontSize: 15}}>{`Weight: ${tierWeights[name]}x`}</label>
     </div>
     <div ref={drop} style={imageHolderStyle}>
       {children}
@@ -97,36 +97,30 @@ type tierName = 'S' | 'A' | 'B' | 'C' | 'D' | 'F'
 
 const tierNames: tierName[] = ['S', 'A', 'B', 'C', 'D', 'F']
 
-interface courseState {
+interface CourseTierPlacement {
   id: number,
   course: CourseKey,
   tier: string
 }
 
-function TierList({updateTiers}: {updateTiers:(tierList: courseState[])=>void}) {
-  const [items, setItems] = useState((Object.keys(courses) as CourseKey[]).map((courseKey, index)=>{
-    console.log(courseKey, tierNames, localStorage[courseKey], localStorage[courseKey] in tierNames, localStorage)
-    return {
-      course: courseKey,
-      tier: (tierNames as any[]).includes(localStorage.getItem(courseKey)) ? localStorage.getItem(courseKey)! : 'C',
-      id: index
-    };  
-  })); //Need to move this up a level, since whenever perferences or course list is updated, we should update statistics
-  
-  console.log(items)
-  updateTiers(items)
+interface TierListProps{
+  courseTiers: CourseTierPlacement[],
+  updateTiers: React.Dispatch<React.SetStateAction<CourseTierPlacement[]>>
+}
 
-  const returnCoursesForTier = (tier: string) => {
-    return items.filter((item) => item.tier === tier).map((item, index) => {
-      return <CourseIconContainer key={item.id}
-                    courseKey={item.course}
-                    currentTier={item.tier}
-                    setItems={setItems}
+function TierList({courseTiers, updateTiers}: TierListProps) {
+
+  const returnCoursesForTier = (tierName: string) => {
+    return courseTiers.filter((course: CourseTierPlacement) => course.tier === tierName).map((course: CourseTierPlacement, index: number) => {
+      return <CourseIconContainer key={course.id}
+                    courseKey={course.course}
+                    currentTier={course.tier}
+                    setItems={updateTiers}
       />
     });
   }
 
-  const rowColors: Color[] = ['red', 'orange', 'yellow', 'green', 'blue', 'brown']
+  const rowColors: Color[] = ['red', 'orange', 'yellow', 'green', 'teal', 'brown']
 
   return <div>
       <DndProvider backend={HTML5Backend}>
@@ -139,5 +133,5 @@ function TierList({updateTiers}: {updateTiers:(tierList: courseState[])=>void}) 
     </div>
 }
 
-export type { courseState }
-export { TierList, tierWeights };
+export type { TierListProps, CourseTierPlacement }
+export { TierList, tierWeights, tierNames };
