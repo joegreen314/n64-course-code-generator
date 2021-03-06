@@ -104,11 +104,16 @@ interface courseState {
 }
 
 function TierList({updateTiers}: {updateTiers:(tierList: courseState[])=>void}) {
-  const [items, setItems] = useState((Object.keys(courses) as CourseKey[]).map((courseKey, index)=>({
-    course: courseKey,
-    tier: courseKey in localStorage && localStorage[courseKey] in tierNames ? localStorage[courseKey] : 'B',
-    id: index
-  })));
+  const [items, setItems] = useState((Object.keys(courses) as CourseKey[]).map((courseKey, index)=>{
+    console.log(courseKey, tierNames, localStorage[courseKey], localStorage[courseKey] in tierNames, localStorage)
+    return {
+      course: courseKey,
+      tier: (tierNames as any[]).includes(localStorage.getItem(courseKey)) ? localStorage.getItem(courseKey)! : 'C',
+      id: index
+    };  
+  })); //Need to move this up a level, since whenever perferences or course list is updated, we should update statistics
+  
+  console.log(items)
   updateTiers(items)
 
   const returnCoursesForTier = (tier: string) => {

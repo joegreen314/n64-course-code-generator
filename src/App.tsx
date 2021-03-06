@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
 import './App.css';
 import { TierList, courseState, tierWeights } from './tierList'
-import {getRandomPrix, CoursePreferences, CourseKey} from './codes'
+import {getRandomPrix, CoursePreferences, CourseKey, getStatistics} from './codes'
 
 let preferences:CoursePreferences = {}
-
 
 function updateTiers(tiers: courseState[]):void{
   for (const stateObject of tiers){
     preferences[stateObject.course] = tierWeights[stateObject.tier as ('S' | 'A' |'B' | 'C' | 'D' | 'F')]
-    localStorage[stateObject.course] = stateObject.tier
+    localStorage.setItem(stateObject.course, stateObject.tier)
   }
   console.log(preferences, tiers)
 }
 
 function App() {
+  console.log(localStorage)
+  // const [items, setItems] = useState({preferences: });
   const tierList = React.createRef();
   return <div style={{display: 'flex'}}>
       <div style={{padding: '5px', border: 'solid 1px black'}}>
@@ -25,9 +26,7 @@ function App() {
         <div style={{display: 'flex', height:'100%'}}>
           <CodeGenerationForm/>
         </div>
-        
       </div>
-
     </div>
 }
 
@@ -51,6 +50,7 @@ class CodeGenerationForm extends React.Component<{}, CodeGenerationFormState> {
     }
   }
 
+
   private handleCountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target
     if (value === ''){
@@ -60,6 +60,7 @@ class CodeGenerationForm extends React.Component<{}, CodeGenerationFormState> {
       this.setState({courseCount: Number(value)})
     }
     this.setState({buttonEnabled: Number(value) > 0 && Number(value) <= 20})
+    getStatistics(Number(value), preferences)
   }
 
   private handleSurpriseChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -90,7 +91,7 @@ class CodeGenerationForm extends React.Component<{}, CodeGenerationFormState> {
           <br/><label htmlFor='ruinSurpriseBox'>Show Courses / Ruin Surprise:</label>
           <input type='checkbox' id='ruinSurpriseBox' checked={this.state.ruinSurprise} onChange={this.handleSurpriseChange}></input>
           <br/>
-          <button onClick={getNewCode} disabled={!this.state.buttonEnabled}>Show me some races!</button>
+          <button disabled={!this.state.buttonEnabled}>Show me some races!</button>
           <br/>
         </form>
         <textarea id="code-textarea" readOnly={true} rows={20} value={this.state.code}
@@ -101,9 +102,6 @@ class CodeGenerationForm extends React.Component<{}, CodeGenerationFormState> {
       );
   }
   
-}
-
-function getNewCode() {
 }
 
 export default App;

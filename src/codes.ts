@@ -1,5 +1,4 @@
 
-
 class Course {
     constructor(
         public name: string,
@@ -238,7 +237,6 @@ function chooseCourses(courseCount: number, preferences: CoursePreferences[], al
             compositeCoursePreferences[courseKey] = coursePrefs.reduce((a, b)=>a + b, 0)
         }
     }
-    console.log(compositeCoursePreferences)
     const selectedCourses:CourseKey[] = [];
     while (selectedCourses.length < courseCount) {
         const new_course = getRandomChoiceFromWeightedArray(compositeCoursePreferences)
@@ -247,7 +245,6 @@ function chooseCourses(courseCount: number, preferences: CoursePreferences[], al
         }
         compositeCoursePreferences[new_course]!*=(courseCount/32)
     }
-    console.log(selectedCourses)
     return selectedCourses;
 }
 
@@ -266,8 +263,27 @@ function shuffleArray(array: string[]) {
     }
 }
 
+function getStatistics(courseCount: number, preferences: CoursePreferences):CoursePreferences{
+    const result: CoursePreferences = {}
+    Object.keys(preferences).map(courseKey=>{
+        const data = Object.entries(preferences)
+        let total = 0
+        for (let i = 0; i < data.length; ++i) {
+            total += data[i][1];
+        }
+        let courseOdds = 0
+        for (let i=0; i<courseCount; i++){
+            
+            courseOdds += (1 - courseOdds)*preferences[courseKey as CourseKey]!/total
+            total *= 31/32
+        }
+        result[courseKey as CourseKey] = courseOdds
+    });
+    console.log(result)
+    return result;
+}
 
 // console.log(getRandomPrix(5, [everyoneCoursePreferences]))
 
 export type {CourseKey, CoursePreferences}
-export {courses, getRandomPrix};
+export {courses, getRandomPrix, getStatistics};

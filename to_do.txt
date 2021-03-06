@@ -1,12 +1,11 @@
-Make form the way they should be in react. Initialize at 8. Disable code generation button for invalid prix length
-get other elements to show up to right of tier list
-save preferences in browser
-Randomize order
-Optionally show races / ruin the surprise
-Display weights for the tiers
-Add styling
+
 Add "already did these races" option to cut those liklihoods by 50%
 Display expected odds for each race
 Add sound
 Export image of tier preferences
 Obfuscate the codes
+
+Might be really hard to do the likelihoods
+Maybe go through race by race, and calculate the odds of total weights for that round
+Could eliminate really unlikely ones, which should limit the groupings to ~10
+Just do approximation.  Lower the total count by the average.  Only need to do it by tier
