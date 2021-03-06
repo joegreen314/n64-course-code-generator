@@ -95,6 +95,8 @@ const tierWeights = {
 
 type tierName = 'S' | 'A' | 'B' | 'C' | 'D' | 'F'
 
+const tierNames: tierName[] = ['S', 'A', 'B', 'C', 'D', 'F']
+
 interface courseState {
   id: number,
   course: CourseKey,
@@ -104,7 +106,7 @@ interface courseState {
 function TierList({updateTiers}: {updateTiers:(tierList: courseState[])=>void}) {
   const [items, setItems] = useState((Object.keys(courses) as CourseKey[]).map((courseKey, index)=>({
     course: courseKey,
-    tier: localStorage[courseKey],
+    tier: courseKey in localStorage && localStorage[courseKey] in tierNames ? localStorage[courseKey] : 'B',
     id: index
   })));
   updateTiers(items)
@@ -119,7 +121,6 @@ function TierList({updateTiers}: {updateTiers:(tierList: courseState[])=>void}) 
     });
   }
 
-  const tierNames: tierName[] = ['S', 'A', 'B', 'C', 'D', 'F']
   const rowColors: Color[] = ['red', 'orange', 'yellow', 'green', 'blue', 'brown']
 
   return <div>
