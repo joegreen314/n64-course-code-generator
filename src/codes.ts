@@ -254,9 +254,17 @@ function chooseCourses(courseCount: number, preferences: CoursePreferences[], al
 
 function getRandomPrix(courseCount: number, preferences: CoursePreferences[]):{code: string, courses: CourseKey[]} {
     const courses = chooseCourses(courseCount, preferences)
+    shuffleArray(courses)
     return {
         code: getPrixCodes(courses).join('\r\n').toUpperCase(),
         courses}
+}
+
+function shuffleArray(array: string[]) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
 }
 
 
