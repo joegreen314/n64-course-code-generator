@@ -281,8 +281,8 @@ function getStatistics(courseCount: number, preferences: CoursePreferences):Cour
         let courseAgainOdds = 0
         const expectedStrengths = Object.assign({}, preferences)
         for (let i=0; i<courseCount; i++){
-            if (courseVal)
-                console.log(courseOdds, courseVal, total, expectedStrengths)
+            // if (courseVal)
+            //     // console.log(courseOdds, courseVal, total, expectedStrengths)
             courseOdds += (1 - courseOdds)*courseVal! / total;
             if (i<courseCount-1)
                 courseAgainOdds += courseOdds * (1 - courseAgainOdds)*courseVal*chanceOfSeeingSameRaceAgain(courseCount)! / (total - courseVal*(1-chanceOfSeeingSameRaceAgain(courseCount)));
@@ -303,7 +303,7 @@ function getStatistics(courseCount: number, preferences: CoursePreferences):Cour
         resultMultiple[courseKey as CourseKey] = courseAgainOdds
     });
 
-    console.log(resultSingle, resultMultiple, Object.values(resultSingle).reduce((a, b)=>a + b, 0), Object.values(resultMultiple).reduce((a, b)=>a + b, 0))
+    // console.log(resultSingle, resultMultiple, Object.values(resultSingle).reduce((a, b)=>a + b, 0), Object.values(resultMultiple).reduce((a, b)=>a + b, 0))
     return [resultSingle, resultMultiple];
 }
 

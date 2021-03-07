@@ -8,28 +8,18 @@ type Color = 'red' | 'orange' | 'yellow' | 'green' | 'teal' | 'brown'
 
 interface courseIconContainerProps {
   courseKey: CourseKey,
-  currentTier: string,
-  setItems: any,
+  currentTier: tierName,
+  changeCourseTier: (courseKey: CourseKey, tiername: tierName)=>void,
 }
 
-function CourseIconContainer({courseKey, currentTier, setItems}: courseIconContainerProps) {
-  const changeCourseTier = (currentItem: {course: CourseKey, type: string}, tier: string) => {
-    setItems((courseTiers: CourseTierPlacement[]) => {
-        return courseTiers.map((courseTier: CourseTierPlacement) => {
-            return {
-                ...courseTier,
-                tier: courseTier.course === currentItem.course ? tier : courseTier.tier,
-            }
-        })
-    });
-  }
+function CourseIconContainer({courseKey, currentTier, changeCourseTier}: courseIconContainerProps) {
 
   const [{ isDragging }, drag] = useDrag({
     item: { course: courseKey, type: 'courseIcon' },
     end: (item, monitor) => {
         const dropResult = monitor.getDropResult();
         if(dropResult && item) {
-            changeCourseTier(item, dropResult.name)
+            changeCourseTier(item.course, dropResult.name)
         }
     },
     collect: (monitor) => ({
@@ -49,7 +39,7 @@ function CourseIconContainer({courseKey, currentTier, setItems}: courseIconConta
   </div>
 }
 
-function TierRow({children, name, color}: {children: React.ReactNode, name: tierName, color: Color}) {
+function TierRow({children, name, color, tierOdds}: {children: React.ReactNode, name: tierName, color: Color, tierOdds: [number, number]}) {
   const [{canDrop, isOver}, drop] = useDrop({
     accept: 'courseIcon',
     drop: () => ({name}),
@@ -73,6 +63,9 @@ function TierRow({children, name, color}: {children: React.ReactNode, name: tier
     width: '870px',
     minHeight: '90px',
   }
+  const oddsContainer= {
+
+  }
   return <div style={rowStyle}>
     <div style={labelHolderStyle}>
       <label style={{fontSize: 40}}>{name}</label><br/>
@@ -80,6 +73,10 @@ function TierRow({children, name, color}: {children: React.ReactNode, name: tier
     </div>
     <div ref={drop} style={imageHolderStyle}>
       {children}
+    </div>
+    <div style={{width: '70px', padding: '10px', backgroundColor: 'white'}}>
+      <label>1+: {tierOdds ? Math.floor(tierOdds[0]*100) : '---'}%</label><br/><br/>
+      <label>2+: {tierOdds ? Math.floor(tierOdds[1]*100): '---'}%</label><br/>
     </div>
   </div>
 }
@@ -93,6 +90,10 @@ const tierWeights = {
   'F': 0
 }
 
+interface TierOdds{
+  [key: string]: [number, number]
+}
+
 type tierName = 'S' | 'A' | 'B' | 'C' | 'D' | 'F'
 
 const tierNames: tierName[] = ['S', 'A', 'B', 'C', 'D', 'F']
@@ -100,32 +101,34 @@ const tierNames: tierName[] = ['S', 'A', 'B', 'C', 'D', 'F']
 interface CourseTierPlacement {
   id: number,
   course: CourseKey,
-  tier: string
+  tier: tierName
 }
 
 interface TierListProps{
   courseTiers: CourseTierPlacement[],
-  updateTiers: React.Dispatch<React.SetStateAction<CourseTierPlacement[]>>
+  changeCourseTier: (courseKey: CourseKey, tiername: tierName)=>void,
+  tierOdds: TierOdds
 }
 
-function TierList({courseTiers, updateTiers}: TierListProps) {
+function TierList({courseTiers, changeCourseTier, tierOdds}: TierListProps) {
 
   const returnCoursesForTier = (tierName: string) => {
     return courseTiers.filter((course: CourseTierPlacement) => course.tier === tierName).map((course: CourseTierPlacement, index: number) => {
       return <CourseIconContainer key={course.id}
                     courseKey={course.course}
                     currentTier={course.tier}
-                    setItems={updateTiers}
+                    changeCourseTier={changeCourseTier}
       />
     });
   }
 
   const rowColors: Color[] = ['red', 'orange', 'yellow', 'green', 'teal', 'brown']
 
+
   return <div>
       <DndProvider backend={HTML5Backend}>
         {tierNames.map((name, index)=>{
-          return <TierRow name={name} color={rowColors[index]}>
+          return <TierRow name={name} color={rowColors[index]} tierOdds={tierOdds[name]}>
               {returnCoursesForTier(name)}
             </TierRow>
         })}
@@ -133,5 +136,5 @@ function TierList({courseTiers, updateTiers}: TierListProps) {
     </div>
 }
 
-export type { TierListProps, CourseTierPlacement }
+export type { TierListProps, CourseTierPlacement, tierName, TierOdds }
 export { TierList, tierWeights, tierNames };

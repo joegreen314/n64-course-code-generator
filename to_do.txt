@@ -1,6 +1,8 @@
 
 Move odds to right side of tiers
+Add prix length of localStorage
 add hover state
+Add option to disable repeat races
 Add "already did these races" option to cut those liklihoods by 50%
 Add sound
 Export image of tier preferences
