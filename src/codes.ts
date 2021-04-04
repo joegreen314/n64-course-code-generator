@@ -259,7 +259,7 @@ function shuffleArray(array: string[]) {
     }
 }
 
-function getStatistics(courseCount: number, preferences: CoursePreferences, allowRepeats: boolean, n=10000):CoursePreferences[]{
+function getStatistics(courseCount: number, preferences: CoursePreferences, allowRepeats: boolean, n=2000):CoursePreferences[]{
     const resultSingle: CoursePreferences = {}
     const resultMultiple: CoursePreferences = {}
 
