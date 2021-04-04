@@ -263,7 +263,7 @@ function getStatistics(courseCount: number, preferences: CoursePreferences, allo
     const resultSingle: CoursePreferences = {}
     const resultMultiple: CoursePreferences = {}
 
-    if (allowRepeats || courseCount <= Object.values(preferences).filter((courseWeight: number)=> courseWeight > 0).length) {
+    if (courseCount <= 20 && (allowRepeats || courseCount <= Object.values(preferences).filter((courseWeight: number)=> courseWeight > 0).length)) {
         const courseLists: CourseKey[][] = []
         for (let i=0; i<n; i++){
             courseLists.push(chooseCourses(courseCount, preferences, allowRepeats))
@@ -277,59 +277,8 @@ function getStatistics(courseCount: number, preferences: CoursePreferences, allo
             resultMultiple[courseKey as CourseKey] = courseAgainOdds
         })
     }
-    
     return [resultSingle, resultMultiple];
 }
-
-// function getStatistics(courseCount: number, preferences: CoursePreferences, allowRepeats: boolean):CoursePreferences[]{
-//     const resultSingle: CoursePreferences = {}
-//     const resultMultiple: CoursePreferences = {}
-//     Object.keys(preferences).map(courseKey=>{
-//         const courseVal = preferences[courseKey as CourseKey]!
-//         const data = Object.entries(preferences)
-//         let total = 0
-//         for (let i = 0; i < data.length; ++i) {
-//             total += data[i][1];
-//         }
-//         let courseOdds = 0
-//         let courseAgainOdds = 0
-//         const expectedStrengths = Object.assign({}, preferences)
-
-//         const oddsOfRepeat = chanceOfSeeingSameRaceAgain(courseCount, allowRepeats)
-//         for (let i=0; i<courseCount; i++){
-//             // if (courseVal)
-//             //     // console.log(courseOdds, courseVal, total, expectedStrengths)
-//             if (courseVal > 0)
-//                 console.log(courseKey, courseVal, total)
-//             courseOdds += (1 - courseOdds)*courseVal! / total;
-//             if (i<courseCount-1) {
-                
-//                 courseAgainOdds += courseOdds * (1 - courseAgainOdds)*courseVal*oddsOfRepeat! / (total - courseVal*(1-oddsOfRepeat));
-//             }
-//             if (courseOdds >= 1){
-//                 break
-//             }
-//             let newTotal = courseVal;
-//             (Object.keys(expectedStrengths) as CourseKey[]).forEach((key:CourseKey)=>{
-//                 if (key !=courseKey){
-//                     const oddsCourseWasChosen = expectedStrengths[key]!/(total - courseVal)
-//                     if (courseVal > 0 && expectedStrengths[key]! > 0)
-//                         console.log(expectedStrengths[key]!, oddsCourseWasChosen*oddsOfRepeat + 1 - oddsCourseWasChosen)
-//                     expectedStrengths[key]! *= oddsCourseWasChosen*oddsOfRepeat + 1 - oddsCourseWasChosen
-//                     newTotal += expectedStrengths[key]!
-//                 }
-//             });
-//             total = newTotal
-//         }
-//         resultSingle[courseKey as CourseKey] = courseOdds
-//         resultMultiple[courseKey as CourseKey] = courseAgainOdds
-//     });
-
-//     // console.log(resultSingle, resultMultiple, Object.values(resultSingle).reduce((a, b)=>a + b, 0), Object.values(resultMultiple).reduce((a, b)=>a + b, 0))
-//     return [resultSingle, resultMultiple];
-// }
-
-// console.log(getRandomPrix(5, [everyoneCoursePreferences]))
 
 export type {CourseKey, CoursePreferences}
 export {courses, getRandomPrix, getStatistics};
