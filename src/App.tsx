@@ -35,7 +35,6 @@ function App() {
     preferences[tier.course] = tierWeights[tier.tier as ('S' | 'A' |'B' | 'C' | 'D' | 'F')]
     localStorage.setItem(tier.course, tier.tier)
   }
-  console.log(preferences)
   const courseOdds = getStatistics(state.courseCount ? state.courseCount : 1, preferences, state.allowRepeats)
   const tierOdds:TierOdds = {};
   state.courseTiers.forEach((courseTier:CourseTierPlacement)=>{
