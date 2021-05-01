@@ -225,27 +225,22 @@ function convertCoursePrefsToArray(preferences: CoursePreferences): number[] {
     return (Object.keys(courses) as CourseKey[]).map(course=>Object.keys(preferences).includes(course) ? preferences[course]! : 2)
 }
 
-function chooseCourses(courseCount: number, preferences: CoursePreferences, allowRepeats: boolean) {
-    if (!allowRepeats && courseCount > Object.values(preferences).filter((courseWeight: number)=> courseWeight > 0).length) {
+function chooseCourses(courseCount: number, preferences: CoursePreferences, repeatWeight: number) {
+    if (repeatWeight==0 && courseCount > Object.values(preferences).filter((courseWeight: number)=> courseWeight > 0).length) {
         throw 'Bad input'
     }
     const modifiedPreferences = Object.assign({}, preferences)
-    //TODO clean this up so it's easier to do stuff with it
     const selectedCourses:CourseKey[] = [];
     while (selectedCourses.length < courseCount) {
         const new_course = getRandomChoiceFromWeightedArray(modifiedPreferences)
         selectedCourses.push(new_course)
-        modifiedPreferences[new_course]!*=chanceOfSeeingSameRaceAgain(courseCount, allowRepeats)
+        modifiedPreferences[new_course]!*=repeatWeight
     }
     return selectedCourses;
 }
 
-function chanceOfSeeingSameRaceAgain(courseCount: number, allowRepeats: boolean){
-    return allowRepeats ? courseCount/32 : 0
-}
-
-function getRandomPrix(courseCount: number, preferences: CoursePreferences, allowRepeats: boolean):{code: string, courses: CourseKey[]} {
-    const courses = chooseCourses(courseCount, preferences, allowRepeats)
+function getRandomPrix(courseCount: number, preferences: CoursePreferences, repeatWeight: number):{code: string, courses: CourseKey[]} {
+    const courses = chooseCourses(courseCount, preferences, repeatWeight)
     shuffleArray(courses)
     return {
         code: getPrixCodes(courses).join('\r\n').toUpperCase(),
@@ -259,14 +254,14 @@ function shuffleArray(array: string[]) {
     }
 }
 
-function getStatistics(courseCount: number, preferences: CoursePreferences, allowRepeats: boolean, n=2000):CoursePreferences[]{
+function getStatistics(courseCount: number, preferences: CoursePreferences, repeatWeight: number, n=5000):CoursePreferences[]{
     const resultSingle: CoursePreferences = {}
     const resultMultiple: CoursePreferences = {}
 
-    if (courseCount <= 20 && (allowRepeats || courseCount <= Object.values(preferences).filter((courseWeight: number)=> courseWeight > 0).length)) {
+    if (courseCount <= 20 && (repeatWeight > 0 || courseCount <= Object.values(preferences).filter((courseWeight: number)=> courseWeight > 0).length)) {
         const courseLists: CourseKey[][] = []
         for (let i=0; i<n; i++){
-            courseLists.push(chooseCourses(courseCount, preferences, allowRepeats))
+            courseLists.push(chooseCourses(courseCount, preferences, repeatWeight))
         }
         Object.keys(preferences).forEach(courseKey=>{
             const courseOdds = courseLists.filter(list=>list.includes(courseKey as CourseKey)).length/courseLists.length

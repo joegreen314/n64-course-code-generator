@@ -107,10 +107,13 @@ interface CourseTierPlacement {
 interface TierListProps{
   courseTiers: CourseTierPlacement[],
   changeCourseTier: (courseKey: CourseKey, tiername: tierName)=>void,
-  tierOdds: TierOdds
+  tierOddsWorker: Worker
 }
 
-function TierList({courseTiers, changeCourseTier, tierOdds}: TierListProps) {
+function TierList({courseTiers, changeCourseTier, tierOddsWorker}: TierListProps) {
+  const [state, setState] = useState({
+    tierOdds: {} as TierOdds
+  });
 
   const returnCoursesForTier = (tierName: string) => {
     return courseTiers.filter((course: CourseTierPlacement) => course.tier === tierName).map((course: CourseTierPlacement, index: number) => {
@@ -123,12 +126,20 @@ function TierList({courseTiers, changeCourseTier, tierOdds}: TierListProps) {
   }
 
   const rowColors: Color[] = ['red', 'orange', 'yellow', 'green', 'teal', 'brown']
-
+  
+  tierOddsWorker.onmessage = (e) =>{
+    const courseOdds = e.data
+    const tierOdds:TierOdds = {};
+    courseTiers.forEach((courseTier:CourseTierPlacement)=>{
+      tierOdds[courseTier.tier] = [courseOdds[0][courseTier.course]!, courseOdds[1][courseTier.course]!];
+    });
+    setState(()=>({ tierOdds }));
+  }
 
   return <div>
       <DndProvider backend={HTML5Backend}>
         {tierNames.map((name, index)=>{
-          return <TierRow name={name} color={rowColors[index]} tierOdds={tierOdds[name]}>
+          return <TierRow name={name} color={rowColors[index]} tierOdds={state.tierOdds[name]}>
               {returnCoursesForTier(name)}
             </TierRow>
         })}

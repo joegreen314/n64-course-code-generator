@@ -1,18 +1,29 @@
 import React, { useState } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox';
+import Button from '@material-ui/core/Button';
+import TextareaAutosize from '@material-ui/core/TextareaAutosize';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
+import Slider from '@material-ui/core/Slider';
+
 import './App.css';
 import { TierList, CourseTierPlacement, tierWeights, tierNames, tierName, TierOdds } from './tierList'
 import {getRandomPrix, CoursePreferences, CourseKey, getStatistics, courses} from './codes'
 
 interface AppState {
   courseCount: number | '',
-  allowRepeats: boolean,
+  repeatWeightChange: number,
   courseTiers: CourseTierPlacement[]
 }
+
+const worker = new Worker('worker-file.js', {type: 'module', credentials: 'same-origin'})
 
 function App() {
   const [state, setState] = useState({
     courseCount: 8 as (number | ''),
-    allowRepeats: true,
+    repeatWeightChange: .25,
     courseTiers: (Object.keys(courses) as CourseKey[]).map((courseKey, index)=>({
         course: courseKey,
         tier: (tierNames as any[]).includes(localStorage.getItem(courseKey)) ? localStorage.getItem(courseKey)! : 'B',
@@ -22,7 +33,7 @@ function App() {
   const changeCourseTier = (courseKey: CourseKey, tier: tierName) => {
     setState((prevState: AppState)=> ({
       courseCount: prevState.courseCount,
-      allowRepeats: prevState.allowRepeats,
+      repeatWeightChange: prevState.repeatWeightChange,
       courseTiers: prevState.courseTiers.map((courseTier: CourseTierPlacement) =>({
                 ...courseTier,
                 tier: courseTier.course === courseKey ? tier : courseTier.tier,
@@ -35,20 +46,22 @@ function App() {
     preferences[tier.course] = tierWeights[tier.tier as ('S' | 'A' |'B' | 'C' | 'D' | 'F')]
     localStorage.setItem(tier.course, tier.tier)
   }
-  const courseOdds = getStatistics(state.courseCount ? state.courseCount : 1, preferences, state.allowRepeats)
-  const tierOdds:TierOdds = {};
-  state.courseTiers.forEach((courseTier:CourseTierPlacement)=>{
-    tierOdds[courseTier.tier] = [courseOdds[0][courseTier.course]!, courseOdds[1][courseTier.course]!];
-  });
+  worker.postMessage([
+    state.courseCount ? state.courseCount : 1,
+    preferences,
+    state.repeatWeightChange
+  ])
+  // const courseOdds = getStatistics(state.courseCount ? state.courseCount : 1, preferences, state.repeatWeightChange)
+
 
   return <div style={{display: 'flex'}}>
       <div style={{padding: '5px', border: 'solid 1px black', clear: 'both'}}>
         <h2 style={{float: 'left'}}>Choose Course Preferences</h2><h2 style={{float: 'right', paddingRight: '20px'}}>Odds</h2>
-        <TierList courseTiers={state.courseTiers} changeCourseTier={changeCourseTier} tierOdds={tierOdds}/></div>
+        <TierList courseTiers={state.courseTiers} changeCourseTier={changeCourseTier} tierOddsWorker={worker}/></div>
       <div style={{border: 'solid 1px black', padding: '5px', width: '1000%'}}>
         <h2>Get Prix Code</h2>
         <div style={{display: 'flex', height:'100%'}}>
-          <CodeGenerationForm preferences={preferences} courseCount={state.courseCount} setState={setState} allowRepeats={state.allowRepeats}/>
+          <CodeGenerationForm preferences={preferences} courseCount={state.courseCount} setState={setState} repeatWeightChange={state.repeatWeightChange}/>
         </div>
       </div>
     </div>
@@ -63,7 +76,7 @@ interface CodeGenerationFormState {
 interface CodeGenerationFormProps {
   preferences: CoursePreferences,
   courseCount: number | '',
-  allowRepeats:boolean,
+  repeatWeightChange:number,
   setState:any 
 }
 
@@ -78,21 +91,21 @@ class CodeGenerationForm extends React.Component<CodeGenerationFormProps, CodeGe
   }
 
   private getMaxRaces = () =>
-    this.props.allowRepeats ? 20 : Object.values(this.props.preferences).filter((courseWeight: number)=> courseWeight > 0).length
+    this.props.repeatWeightChange > 0 ? 20 : Object.values(this.props.preferences).filter((courseWeight: number)=> courseWeight > 0).length
 
   private handleCountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target
     if (value === ''){
       this.props.setState((prevState: AppState)=>({
         courseTiers: prevState.courseTiers,
-        allowRepeats: prevState.allowRepeats,
+        repeatWeightChange: prevState.repeatWeightChange,
         courseCount: value
       }));
     }
     else if (!isNaN(parseFloat(value)) && isFinite(parseFloat(value))){
       this.props.setState((prevState: AppState)=>({
         courseTiers: prevState.courseTiers,
-        allowRepeats: prevState.allowRepeats,
+        repeatWeightChange: prevState.repeatWeightChange,
         courseCount: Number(value)
       }));
     }
@@ -105,10 +118,10 @@ class CodeGenerationForm extends React.Component<CodeGenerationFormProps, CodeGe
     })
   }
 
-  private allowRepeatsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  private allowRepeatsChange = (event: any, newValue: number|number[]) => {
     this.props.setState((prevState: AppState)=> ({
       courseTiers: prevState.courseTiers,
-      allowRepeats: event.target.checked,
+      repeatWeightChange: newValue,
       courseCount: prevState.courseCount
     }))
   }
@@ -117,7 +130,7 @@ class CodeGenerationForm extends React.Component<CodeGenerationFormProps, CodeGe
     event.preventDefault();
     const courseCountInput = parseInt(document.querySelector<HTMLInputElement>('#courseCountInput')!.value as string)
     const courseCount = courseCountInput > 0 && courseCountInput <= this.getMaxRaces() ? courseCountInput : 4
-    const randomPrix = getRandomPrix(courseCount, this.props.preferences, this.props.allowRepeats)
+    const randomPrix = getRandomPrix(courseCount, this.props.preferences, this.props.repeatWeightChange)
     this.setState({
       code: randomPrix.code,
       courses: randomPrix.courses
@@ -130,23 +143,73 @@ class CodeGenerationForm extends React.Component<CodeGenerationFormProps, CodeGe
     return (
       <div>
         <form onSubmit={this.handleSubmit}>
-          <label htmlFor='courseCountInput'>Prix Length:</label>
-          <input type='text' id='courseCountInput' value={this.props.courseCount} onChange={this.handleCountChange}></input><br/>
-          <label style={{color: 'red', display: buttonEnabled? 'none': 'inline'}}>&nbsp;Length must be between 1 and {this.getMaxRaces()}</label>
+          <TextField
+            id='courseCountInput'
+            label={'Prix Length:'}
+            value={this.props.courseCount}
+            onChange={this.handleCountChange}
+            error={!buttonEnabled}
+            helperText={buttonEnabled? '': `Length must be between 1 and ${this.getMaxRaces()}`}
+          />
           <br/>
-          <input type='checkbox' id='allowRepeatsBox' checked={this.props.allowRepeats} onChange={this.allowRepeatsChange}></input>
-          <label htmlFor='allowRepeatsBox'>Allow repeat races</label>
+          {/* <FormControlLabel
+            control={
+              <Checkbox
+                checked={this.props.allowRepeats>0}
+                onChange={this.allowRepeatsChange(0)}
+                color='primary'
+              />
+            }
+            label='Allow repeat races'
+          /> */}
+
+          <Slider
+            value={this.props.repeatWeightChange}
+            onChange={this.allowRepeatsChange}
+            defaultValue={.25}
+            min={0}
+            max={1.5}
+            step={.1}
+            marks={
+              [0, .5, 1, 1.5].map(value=>({
+                value: value,
+                label: `${value*100}%`
+              }))
+            }
+            valueLabelFormat={(value: number)=>`${Math.round(value*100)}%`}
+            valueLabelDisplay="auto"
+            aria-labelledby="continuous-slider"
+          />
           <br/>
-          <input type='checkbox' id='ruinSurpriseBox' checked={this.state.ruinSurprise} onChange={this.handleSurpriseChange}></input>
-          <label htmlFor='ruinSurpriseBox'>Ruin Surprise (reveal course names)</label>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={this.state.ruinSurprise}
+                onChange={this.handleSurpriseChange}
+                color='primary'
+              />
+            }
+            label='Ruin Surprise (show names)'
+          />
           <br/>
-          <button disabled={!buttonEnabled}>Show me some races!</button>
+          <Button type='submit' variant='contained' disabled={!buttonEnabled}>Show me some races!</Button>
           <br/>
         </form>
-        <textarea id="code-textarea" readOnly={true} rows={10} value={this.state.code}
-            style={{display: this.state.code? 'inline-block' : 'none'}}></textarea>
-        <textarea id="courses-textarea" readOnly={true} rows={10} value={this.state.courses.join('\n')}
-                  style={{display: this.state.ruinSurprise && this.state.code ? 'inline-block' : 'none'}}></textarea>
+        <br/>
+        {
+          this.state.code && <TextareaAutosize
+            readOnly={true}
+            value={this.state.code}
+          />
+        }
+        <br/>
+        {
+          this.state.ruinSurprise && this.state.code && <TextareaAutosize
+            readOnly={true}
+            rows={this.state.courses.length + 1}
+            value={this.state.courses.join('\n')}
+          />
+        }
       </div>
       );
   }
