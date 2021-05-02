@@ -129,13 +129,16 @@ function TierList({courseTiers, changeCourseTier, tierOddsPromise}: TierListProp
   const rowColors: Color[] = ['red', 'orange', 'yellow', 'green', 'teal', 'brown']
   
   const awaitPromise = async ()=>{
-    console.log(4)
     const courseOdds = await tierOddsPromise
     const tierOdds:TierOdds = {};
     courseTiers.forEach((courseTier:CourseTierPlacement)=>{
       tierOdds[courseTier.tier] = [courseOdds[0][courseTier.course]!, courseOdds[1][courseTier.course]!];
     });
-    setState(()=>({ tierOdds }));
+    console.log(state.tierOdds, tierOdds)
+    if(Object.keys(state.tierOdds).length == 0 || Object.keys(tierOdds).filter((name)=>state.tierOdds[name][0] != tierOdds[name][0] || state.tierOdds[name][1] != tierOdds[name][1]).length > 0) {
+      console.log('update!')
+      setState(()=>({ tierOdds }));
+    }
   }
   awaitPromise()
 

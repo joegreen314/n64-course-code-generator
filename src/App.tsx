@@ -18,6 +18,28 @@ interface AppState {
 }
 
 const worker = new Worker();
+let tierOddsPromise: Promise<CoursePreferences[]> = Promise.resolve([])
+let nextCourseCount: number;
+let nextPreferences: CoursePreferences;
+let nextRepeatWeight: number; 
+let lastCourseCount: number;
+let lastPreferences: CoursePreferences;
+let lastRepeatWeight: number; 
+
+async function updateStatistics(courseCount: number, preferences: CoursePreferences, repeatWeight: number) {
+  nextCourseCount = courseCount
+  nextPreferences = preferences
+  nextRepeatWeight = repeatWeight
+  await tierOddsPromise
+  const preferenceChange = (Object.keys(nextPreferences) as CourseKey[]).filter(key=>!lastPreferences || !(key in lastPreferences) || nextPreferences[key] != lastPreferences[key]).length > 0
+  if (nextCourseCount != lastCourseCount || nextRepeatWeight != lastRepeatWeight || preferenceChange){
+    tierOddsPromise = worker.runGetStatistics(nextCourseCount, nextPreferences, nextRepeatWeight)
+    lastCourseCount = nextCourseCount;
+    lastPreferences = nextPreferences;
+    lastRepeatWeight = nextRepeatWeight;
+  }
+  return tierOddsPromise
+}
 
 function App() {
   const [state, setState] = useState({
@@ -42,23 +64,18 @@ function App() {
 
   const preferences:CoursePreferences = {}
   for (const tier of state.courseTiers){
-    preferences[tier.course] = tierWeights[tier.tier as ('S' | 'A' |'B' | 'C' | 'D' | 'F')]
+    preferences[tier.course] = tierWeights[tier.tier as ('S' | 'A' | 'B' | 'C' | 'D' | 'F')]
     localStorage.setItem(tier.course, tier.tier)
   }
-  console.log(1)
-  const tierOddsPromise = worker.doWork(
-    state.courseCount ? state.courseCount : 1,
-    preferences,
-    state.repeatWeightChange
-  )
-  console.log(2)
-  // const courseOdds = getStatistics(state.courseCount ? state.courseCount : 1, preferences, state.repeatWeightChange)
 
+  let oddsPromise = updateStatistics(state.courseCount ? state.courseCount : 1, preferences, state.repeatWeightChange)
+
+  // const courseOdds = getStatistics(state.courseCount ? state.courseCount : 1, preferences, state.repeatWeightChange)
 
   return <div style={{display: 'flex'}}>
       <div style={{padding: '5px', border: 'solid 1px black', clear: 'both'}}>
         <h2 style={{float: 'left'}}>Choose Course Preferences</h2><h2 style={{float: 'right', paddingRight: '20px'}}>Odds</h2>
-        <TierList courseTiers={state.courseTiers} changeCourseTier={changeCourseTier} tierOddsPromise={tierOddsPromise}/></div>
+        <TierList courseTiers={state.courseTiers} changeCourseTier={changeCourseTier} tierOddsPromise={oddsPromise}/></div>
       <div style={{border: 'solid 1px black', padding: '5px', width: '1000%'}}>
         <h2>Get Prix Code</h2>
         <div style={{display: 'flex', height:'100%'}}>
