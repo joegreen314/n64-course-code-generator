@@ -1,10 +1,5 @@
 import React, { useState } from 'react';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-import Button from '@material-ui/core/Button';
-import TextareaAutosize from '@material-ui/core/TextareaAutosize';
-import TextField from '@material-ui/core/TextField';
-import Slider from '@material-ui/core/Slider';
+import { Typography, TextField, Slider, TextareaAutosize, Button, Checkbox, FormControlLabel, Container } from '@material-ui/core';
 
 import './App.css';
 import { TierList, CourseTierPlacement, tierWeights, tierNames, tierName, TierOdds } from './tierList'
@@ -159,7 +154,7 @@ class CodeGenerationForm extends React.Component<CodeGenerationFormProps, CodeGe
   render() {
     const buttonEnabled = Number(this.props.courseCount) > 0 && Number(this.props.courseCount) <= this.getMaxRaces()
     return (
-      <div>
+      <Container>
         <form onSubmit={this.handleSubmit}>
           <TextField
             id='courseCountInput'
@@ -170,17 +165,8 @@ class CodeGenerationForm extends React.Component<CodeGenerationFormProps, CodeGe
             helperText={buttonEnabled? '': `Length must be between 1 and ${this.getMaxRaces()}`}
           />
           <br/>
-          {/* <FormControlLabel
-            control={
-              <Checkbox
-                checked={this.props.allowRepeats>0}
-                onChange={this.allowRepeatsChange(0)}
-                color='primary'
-              />
-            }
-            label='Allow repeat races'
-          /> */}
-
+          <br/>
+          <Typography variant='body1' gutterBottom>Repeat Course Weight Change (0%: No repeats)</Typography>
           <Slider
             value={this.props.repeatWeightChange}
             onChange={this.allowRepeatsChange}
@@ -228,7 +214,7 @@ class CodeGenerationForm extends React.Component<CodeGenerationFormProps, CodeGe
             value={this.state.courses.join('\n')}
           />
         }
-      </div>
+      </Container>
       );
   }
 }
