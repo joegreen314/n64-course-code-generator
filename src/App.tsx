@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/core/Slider';
 
 import './App.css';
 import { TierList, CourseTierPlacement, tierWeights, tierNames, tierName, TierOdds } from './tierList'
 import {getRandomPrix, CoursePreferences, CourseKey, getStatistics, courses} from './codes'
+import Worker from './worker'
 
 interface AppState {
   courseCount: number | '',
@@ -18,7 +17,7 @@ interface AppState {
   courseTiers: CourseTierPlacement[]
 }
 
-const worker = new Worker('worker-file.js', {type: 'module', credentials: 'same-origin'})
+const worker = new Worker();
 
 function App() {
   const [state, setState] = useState({
@@ -46,18 +45,20 @@ function App() {
     preferences[tier.course] = tierWeights[tier.tier as ('S' | 'A' |'B' | 'C' | 'D' | 'F')]
     localStorage.setItem(tier.course, tier.tier)
   }
-  worker.postMessage([
+  console.log(1)
+  const tierOddsPromise = worker.doWork(
     state.courseCount ? state.courseCount : 1,
     preferences,
     state.repeatWeightChange
-  ])
+  )
+  console.log(2)
   // const courseOdds = getStatistics(state.courseCount ? state.courseCount : 1, preferences, state.repeatWeightChange)
 
 
   return <div style={{display: 'flex'}}>
       <div style={{padding: '5px', border: 'solid 1px black', clear: 'both'}}>
         <h2 style={{float: 'left'}}>Choose Course Preferences</h2><h2 style={{float: 'right', paddingRight: '20px'}}>Odds</h2>
-        <TierList courseTiers={state.courseTiers} changeCourseTier={changeCourseTier} tierOddsWorker={worker}/></div>
+        <TierList courseTiers={state.courseTiers} changeCourseTier={changeCourseTier} tierOddsPromise={tierOddsPromise}/></div>
       <div style={{border: 'solid 1px black', padding: '5px', width: '1000%'}}>
         <h2>Get Prix Code</h2>
         <div style={{display: 'flex', height:'100%'}}>

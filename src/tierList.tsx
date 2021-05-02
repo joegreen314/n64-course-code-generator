@@ -107,10 +107,11 @@ interface CourseTierPlacement {
 interface TierListProps{
   courseTiers: CourseTierPlacement[],
   changeCourseTier: (courseKey: CourseKey, tiername: tierName)=>void,
-  tierOddsWorker: Worker
+  tierOddsPromise: Promise<CoursePreferences[]>
 }
 
-function TierList({courseTiers, changeCourseTier, tierOddsWorker}: TierListProps) {
+function TierList({courseTiers, changeCourseTier, tierOddsPromise}: TierListProps) {
+  console.log(5)
   const [state, setState] = useState({
     tierOdds: {} as TierOdds
   });
@@ -127,14 +128,16 @@ function TierList({courseTiers, changeCourseTier, tierOddsWorker}: TierListProps
 
   const rowColors: Color[] = ['red', 'orange', 'yellow', 'green', 'teal', 'brown']
   
-  tierOddsWorker.onmessage = (e) =>{
-    const courseOdds = e.data
+  const awaitPromise = async ()=>{
+    console.log(4)
+    const courseOdds = await tierOddsPromise
     const tierOdds:TierOdds = {};
     courseTiers.forEach((courseTier:CourseTierPlacement)=>{
       tierOdds[courseTier.tier] = [courseOdds[0][courseTier.course]!, courseOdds[1][courseTier.course]!];
     });
     setState(()=>({ tierOdds }));
   }
+  awaitPromise()
 
   return <div>
       <DndProvider backend={HTML5Backend}>

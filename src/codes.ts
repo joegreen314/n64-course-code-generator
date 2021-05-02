@@ -254,7 +254,7 @@ function shuffleArray(array: string[]) {
     }
 }
 
-function getStatistics(courseCount: number, preferences: CoursePreferences, repeatWeight: number, n=5000):CoursePreferences[]{
+function getStatistics(courseCount: number, preferences: CoursePreferences, repeatWeight: number, n=10):CoursePreferences[]{
     const resultSingle: CoursePreferences = {}
     const resultMultiple: CoursePreferences = {}
 
