@@ -36,25 +36,41 @@ async function updateStatistics(courseCount: number, preferences: CoursePreferen
   return tierOddsPromise
 }
 
+function spookyTime():boolean{
+  const date = new Date()
+  return date.getMonth()===9 && date.getDate() + 14 >= 31
+}
+
 function App() {
   const [state, setState] = useState({
     courseCount: 8 as (number | ''),
     repeatWeightChange: .25,
-    courseTiers: (Object.keys(courses) as CourseKey[]).map((courseKey, index)=>({
+    courseTiers: (Object.keys(courses) as CourseKey[]).map((courseKey, index)=>{
+      let tier
+      if (spookyTime() && courses[courseKey].isSpooky) {
+        tier = 'S'
+      } else if ((tierNames as any[]).includes(localStorage.getItem(courseKey))) {
+        tier = localStorage.getItem(courseKey)!
+      } else {
+        tier = 'B'
+      }
+      return {
         course: courseKey,
-        tier: (tierNames as any[]).includes(localStorage.getItem(courseKey)) ? localStorage.getItem(courseKey)! : 'B',
+        tier,
         id: index
-      })) as CourseTierPlacement[]});
+      }}) as CourseTierPlacement[]});
 
   const changeCourseTier = (courseKey: CourseKey, tier: tierName) => {
-    setState((prevState: AppState)=> ({
-      courseCount: prevState.courseCount,
-      repeatWeightChange: prevState.repeatWeightChange,
-      courseTiers: prevState.courseTiers.map((courseTier: CourseTierPlacement) =>({
-                ...courseTier,
-                tier: courseTier.course === courseKey ? tier : courseTier.tier,
-            })
-        )}));
+    if (!spookyTime() || !courses[courseKey].isSpooky){
+      setState((prevState: AppState)=> ({
+        courseCount: prevState.courseCount,
+        repeatWeightChange: prevState.repeatWeightChange,
+        courseTiers: prevState.courseTiers.map((courseTier: CourseTierPlacement) =>({
+                  ...courseTier,
+                  tier: courseTier.course === courseKey ? tier : courseTier.tier,
+        }))
+      }));
+    }
   }
 
   const preferences:CoursePreferences = {}
@@ -69,10 +85,11 @@ function App() {
 
   return <div style={{display: 'flex'}}>
       <div style={{padding: '5px', border: 'solid 1px black', clear: 'both'}}>
-        <h2 style={{float: 'left'}}>Choose Course Preferences</h2><h2 style={{float: 'right', paddingRight: '20px'}}>Odds</h2>
+        <h2 style={{float: 'left'}}>Choose {spookyTime() ? 'Spooky' : ''} Course Preferences</h2>
+        <h2 style={{float: 'right', paddingRight: '20px'}}>{spookyTime() ? 'Spooky' : ''} Odds</h2>
         <TierList courseTiers={state.courseTiers} changeCourseTier={changeCourseTier} tierOddsPromise={oddsPromise}/></div>
       <div style={{border: 'solid 1px black', padding: '5px', width: '1000%'}}>
-        <h2>Get Prix Code</h2>
+        <h2>Get {spookyTime() ? 'Spooky' : ''} Prix Code</h2>
         <div style={{display: 'flex', height:'100%'}}>
           <CodeGenerationForm preferences={preferences} courseCount={state.courseCount} setState={setState} repeatWeightChange={state.repeatWeightChange}/>
         </div>
@@ -196,7 +213,7 @@ class CodeGenerationForm extends React.Component<CodeGenerationFormProps, CodeGe
             label='Ruin Surprise (show names)'
           />
           <br/>
-          <Button type='submit' variant='contained' disabled={!buttonEnabled}>Show me some races!</Button>
+          <Button type='submit' variant='contained' disabled={!buttonEnabled}>Show me some {spookyTime() ? 'Spooky' : ''} races!</Button>
           <br/>
         </form>
         <br/>

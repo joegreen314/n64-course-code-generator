@@ -1,34 +1,17 @@
-import { exception } from "node:console"
+
 
 class Course {
     constructor(
         public name: string,
         public code: string,
-        public length?: number,
+        public isSpooky: boolean = false,
     ) {
     }
 }
 
 type CourseKey = 'mario' | 'choco' | 'bowser' | 'banshee' | 'yoshi' | 'frappe' | 'koopa' | 'royal' |
     'luigi' | 'moomoo' | 'toad' | 'kalimari' | 'sherbert' | 'rainbow' | 'wario' | 'dk'
-// enum CourseKey {
-//     mario,
-//     choco,
-//     bowser,
-//     banshee,
-//     yoshi,
-//     frappe,
-//     koopa,
-//     royal,
-//     luigi,
-//     moomoo,
-//     toad,
-//     kalimari,
-//     sherbert,
-//     rainbow,
-//     wario,
-//     dk
-// }
+
 
 interface CoursePreferences {
     mario?: number,
@@ -74,25 +57,6 @@ const joshCoursePreferences: CoursePreferences = {
     wario: 2,
     dk: 2
 }
-
-// const everyoneCoursePreferences: CoursePreferences = {
-//     mario: 1,
-//     choco: 3,
-//     bowser: 2,
-//     banshee: 2,
-//     yoshi: 5,
-//     frappe: 3,
-//     koopa: 5,
-//     royal: 3,
-//     luigi: 3,
-//     moomoo: 2,
-//     toad: 3,
-//     kalimari: 3,
-//     sherbert: 4,
-//     rainbow: 0,
-//     wario: 3,
-//     dk: 4
-// }
 
 const everyoneCoursePreferences: CoursePreferences = {
     mario: 1,
@@ -159,8 +123,8 @@ const courses: {
 } = {
     mario: new Course("Mario Raceway", '0000'),
     choco: new Course("Choco Mountain", '0001'),
-    bowser: new Course("Bowser's Castle", '0002'),
-    banshee: new Course("Banshee Boardwalk", '0003'),
+    bowser: new Course("Bowser's Castle", '0002', true),
+    banshee: new Course("Banshee Boardwalk", '0003', true),
     yoshi: new Course("Yoshi Valley", '0004'),
     frappe: new Course("Frappe Snowland", '0005'),
     koopa: new Course("Koopa Troopa Beach", '0006'),

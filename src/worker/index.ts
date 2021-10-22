@@ -1,4 +1,4 @@
 // eslint-disable-next-line
-import doWork from 'comlink-loader!./worker'; // inline loader
+import Worker from 'comlink-loader!./worker'; // inline loader
 
-export default doWork;
+export default Worker;

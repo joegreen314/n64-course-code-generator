@@ -135,7 +135,7 @@ function TierList({courseTiers, changeCourseTier, tierOddsPromise}: TierListProp
       tierOdds[courseTier.tier] = [courseOdds[0][courseTier.course]!, courseOdds[1][courseTier.course]!];
     });
     console.log(state.tierOdds, tierOdds)
-    if(Object.keys(state.tierOdds).length == 0 || Object.keys(tierOdds).filter((name)=>state.tierOdds[name][0] != tierOdds[name][0] || state.tierOdds[name][1] != tierOdds[name][1]).length > 0) {
+    if(Object.keys(state.tierOdds).length == 0 || Object.keys(tierOdds).filter((name)=>!(name in state.tierOdds) || state.tierOdds[name][0] != tierOdds[name][0] || state.tierOdds[name][1] != tierOdds[name][1]).length > 0) {
       console.log('update!')
       setState(()=>({ tierOdds }));
     }
