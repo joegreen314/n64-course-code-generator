@@ -49,23 +49,20 @@ function TierRow({children, name, color, tierOdds}: {children: React.ReactNode, 
     })
   })
   const rowStyle = {
-    border: 'solid 1px black',
-    display: 'inline-flex',
-    backgroundColor: '#505050'
+    border: 'solid 1px orange',
+    display: 'inline-flex'
   }
   const labelHolderStyle = {
     width: '100px',
-    borderRight: 'solid 1px black',
-    backgroundColor: color,
+    borderRight: 'solid 1px orange',
+    // backgroundColor: color,
     padding: '10px'
     }
   const imageHolderStyle = {
     width: '870px',
     minHeight: '90px',
   }
-  const oddsContainer= {
-
-  }
+  
   return <div style={rowStyle}>
     <div style={labelHolderStyle}>
       <label style={{fontSize: 40}}>{name}</label><br/>
@@ -74,7 +71,7 @@ function TierRow({children, name, color, tierOdds}: {children: React.ReactNode, 
     <div ref={drop} style={imageHolderStyle}>
       {children}
     </div>
-    <div style={{width: '70px', padding: '10px', backgroundColor: 'white'}}>
+    <div style={{width: '70px', padding: '10px'}}>
       <label>1+: {tierOdds ? Math.floor(tierOdds[0]*100) : '---'}%</label><br/><br/>
       <label>2+: {tierOdds ? Math.floor(tierOdds[1]*100): '---'}%</label><br/>
     </div>
@@ -142,7 +139,7 @@ function TierList({courseTiers, changeCourseTier, tierOddsPromise}: TierListProp
   }
   awaitPromise()
 
-  return <div>
+  return <div style={{backgroundImage: 'url(spooky_boardwalk.png)', backgroundSize:'100%'}}>
       <DndProvider backend={HTML5Backend}>
         {tierNames.map((name, index)=>{
           return <TierRow name={name} color={rowColors[index]} tierOdds={state.tierOdds[name]}>

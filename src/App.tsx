@@ -5,6 +5,7 @@ import './App.css';
 import { TierList, CourseTierPlacement, tierWeights, tierNames, tierName, TierOdds } from './tierList'
 import {getRandomPrix, CoursePreferences, CourseKey, getStatistics, courses} from './codes'
 import Worker from './worker'
+import { url } from 'inspector';
 
 interface AppState {
   courseCount: number | '',
@@ -84,7 +85,7 @@ function App() {
   // const courseOdds = getStatistics(state.courseCount ? state.courseCount : 1, preferences, state.repeatWeightChange)
 
   return <div style={{display: 'flex'}}>
-      <div style={{padding: '5px', border: 'solid 1px black', clear: 'both'}}>
+      <div style={{padding: '5px', border: 'solid 1px black', clear: 'both', color: 'orange'}}>
         <h2 style={{float: 'left'}}>Choose {spookyTime() ? 'Spooky' : ''} Course Preferences</h2>
         <h2 style={{float: 'right', paddingRight: '20px'}}>{spookyTime() ? 'Spooky' : ''} Odds</h2>
         <TierList courseTiers={state.courseTiers} changeCourseTier={changeCourseTier} tierOddsPromise={oddsPromise}/></div>
